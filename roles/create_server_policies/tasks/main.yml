@@ -1,0 +1,80 @@
+---
+# Create server policies for VCF management doamin hosts
+# These policies are mapped directly to the server profile template
+#
+- name: "Create IMM Server Policies"
+  vars:
+    api_info: &api_info_org_moid
+      api_private_key: "{{ api_private_key }}"
+      api_key_id: "{{ api_key_id }}"
+      api_uri: "{{ api_uri | default(omit) }}"
+      validate_certs: "{{ validate_certs | default(omit) }}"
+      state: "{{ state | default(omit) }}"
+  intersight_rest_api:
+    <<: *api_info_org_moid
+    resource_path: /organization/Organizations
+    query_params:
+      $filter: "Name eq '{{ org_name }}'"
+  register: intersight_org
+  delegate_to: localhost
+  tags: always
+  run_once: true
+
+
+# Collect information about various pools
+- include_tasks: gather_pool_info.yml
+
+# Create Bios Policy
+# The provided bios policy is for M5 servers and will need to be updated if
+# using different (e.g. M6) servers. The onboard LOM ports are disabled
+#
+- include_tasks: create_bios_policy.yml
+
+# Create IMC Access Policy to allow KVM access over in-band mgmt network
+- include_tasks: create_imc_policy.yml
+
+# Create KVM Policy to allow KVM access and enable tunneled KVM
+# Tunneled KVM should be enabled globally in Intersight under "System > Security and Privacy"
+- include_tasks: create_kvm_policy.yml
+
+# Create vMedia Policy to allow ISO file mapping in KVM
+- include_tasks: create_vmedia_policy.yml
+
+# Create Boot Order Policy for Local Boot of VCF mgmt hosts
+- include_tasks: create_boot_order_policy.yml
+
+# Create IPMI over LAN Policy to enable IPMI over LAN
+- include_tasks: create_ipmi_policy.yml
+
+# Create Power Policy
+- include_tasks: create_power_policy.yml
+
+# Create Local User Policy to allow KVM Access
+- include_tasks: create_local_user_policy.yml
+
+# Create Ethernet QoS Policy and set Jumbo MTU
+- include_tasks: create_ethernet_qos_policy.yml
+
+# Create Ethernet Network Control Policy to enable CDP/LLDP
+- include_tasks: create_ethernet_network_control_policy.yml
+
+# Create VMware and High Traffic Ethernet Adapter Policy
+- include_tasks: create_ethernet_adapter_policies.yml
+
+# Create Ethernet Network Group Policy - VLAN details for vNICs
+- include_tasks: create_ethernet_network_group_policy.yml
+
+# Configure LAN Connectivity Policy
+- include_tasks: create_lan_connectivity_policy.yml
+  
+# Configure FC Network Policy
+- include_tasks: create_fc_network_policy.yml
+
+# Fibre Channel Qos Policy
+- include_tasks: create_fc_qos_policy.yml
+
+# Fibre Channel Adapter Policies
+- include_tasks: create_fc_adapter_policy.yml
+
+# SAN connectivity Policy
+- include_tasks: create_san_connectivity_policy.yml

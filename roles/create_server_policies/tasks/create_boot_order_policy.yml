@@ -1,0 +1,118 @@
+---
+# Creates two boot order policies, one for VCF Mgmt hosts that allows:
+# 1. KVM mapped DVD
+# 2. Local Disk (M.2 drive tested)
+#
+# And a second policy for VCF Workload hosts that allows:
+# 1. KVM mapped DVD
+# 2. Boot from SAN
+#
+- name: "Boot Order Policy for VCF Mgmt Domain Hosts"
+  vars:
+    api_info: &api_info_vcf
+      api_private_key: "{{ api_private_key }}"
+      api_key_id: "{{ api_key_id }}"
+      api_uri: "{{ api_uri | default(omit) }}"
+      validate_certs: "{{ validate_certs | default(omit) }}"
+      state: "{{ state | default(omit) }}"
+  block:
+  -    cisco.intersight.intersight_rest_api:
+          <<: *api_info_vcf
+          resource_path: /boot/PrecisionPolicies
+          query_params:
+             $filter: "Name eq '{{ boot_order_policy_name }}'"
+          api_body: {
+            "Name": "{{ boot_order_policy_name }}",
+            "Description": "{{ boot_order_policy_description }}",
+
+            "Organization": {
+               "Moid": "{{ intersight_org.api_response.Moid }}"
+             },
+            Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}],
+
+             "ConfiguredBootMode": "{{ boot_mode }}",
+             "EnforceUefiSecureBoot": "{{ enable_uefi_secureboot|bool }}",
+             "BootDevices": [
+                  {
+                     "Name": "KVM-Mapped-ISO",
+                     "Subtype": "kvm-mapped-dvd",
+                     "Enabled": true,
+                     "ObjectType": "boot.VirtualMedia"
+                  },
+                  {
+                     "Name": "Local-Boot",
+                     "Enabled": true,
+                     "ObjectType": "boot.LocalDisk"
+                  }
+             ]
+
+            }
+       register: boot_policy
+
+- name: "Boot Order Policy for FC"
+  vars:
+    api_info: &api_info_fc
+      api_private_key: "{{ api_private_key }}"
+      api_key_id: "{{ api_key_id }}"
+      api_uri: "{{ api_uri | default(omit) }}"
+      validate_certs: "{{ validate_certs | default(omit) }}"
+      state: "{{ state | default(omit) }}"
+  block:
+  -    cisco.intersight.intersight_rest_api:
+          <<: *api_info_fc
+          resource_path: /boot/PrecisionPolicies
+          query_params:
+             $filter: "Name eq '{{ fc_boot_order_policy_name }}'"
+          api_body: {
+            "Name": "{{ fc_boot_order_policy_name }}",
+            "Description": "{{ fc_boot_order_policy_description }}",
+
+            "Organization": {
+               "Moid": "{{ intersight_org.api_response.Moid }}"
+             },
+            Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}],
+
+             "ConfiguredBootMode": "{{ boot_mode }}",
+             "EnforceUefiSecureBoot": "{{ enable_uefi_secureboot|bool }}",
+             "BootDevices": [
+                {
+                   "Name": "KVM-Mapped-ISO",
+                   "Subtype": "kvm-mapped-dvd",
+                   "Enabled": true,
+                   "ObjectType": "boot.VirtualMedia"
+                },
+                {
+                   "Name": "{{ san_boot_device_1a_name }}",
+                   "Lun": "{{ lun_id }}",
+                   "InterfaceName": "{{ name_of_vhba_a }}",
+                   "Wwpn": "{{ san_boot_target_1a_wwpn }}",
+                   "Enabled": true,
+                   "ObjectType": "boot.San"
+                },
+                {
+                   "Name": "{{ san_boot_device_2a_name }}",
+                   "Lun": "{{ lun_id }}",
+                   "InterfaceName": "{{ name_of_vhba_a }}",
+                   "Wwpn": "{{ san_boot_target_2a_wwpn }}",
+                   "Enabled": true,
+                   "ObjectType": "boot.San"
+                },
+                {
+                   "Name": "{{ san_boot_device_1b_name }}",
+                   "Lun": "{{ lun_id }}",
+                   "InterfaceName": "{{ name_of_vhba_b }}",
+                   "Wwpn": "{{ san_boot_target_1b_wwpn }}",
+                   "Enabled": true,
+                   "ObjectType": "boot.San"
+                },
+                {
+                   "Name": "{{ san_boot_device_2b_name }}",
+                   "Lun": "{{ lun_id }}",
+                   "InterfaceName": "{{ name_of_vhba_b }}",
+                   "Wwpn": "{{ san_boot_target_2b_wwpn }}",
+                   "Enabled": true,
+                   "ObjectType": "boot.San"
+                }
+             ]
+            }
+       register: fc_boot_policy

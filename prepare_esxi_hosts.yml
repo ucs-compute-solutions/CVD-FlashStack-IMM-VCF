@@ -1,0 +1,25 @@
+---
+################################################################################
+# Esxi Host Setup Section
+################################################################################
+#
+# Make sure ESXi is installed and management IP address is reachable before 
+# executing this role. This role will:
+#
+# - Setup DNS server and hostname/domain
+# - Setup and start NTP services
+# - Setup vSwitch MTU to 9000
+# - Setup the mangement VLAN on default VM port group to facilitate vCenter install by CloudBuilder
+# - Enable SSH on the ESXi hosts
+#
+- hosts: esxi_hosts
+  gather_facts: no
+  serial: 1
+  roles:
+    - role: prepare_ESXi_hosts
+
+- hosts: workload_hosts
+  gather_facts: no
+  serial: 1
+  roles:
+    - role: prepare_ESXi_hosts

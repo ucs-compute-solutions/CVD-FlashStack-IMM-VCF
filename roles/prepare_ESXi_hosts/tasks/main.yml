@@ -1,0 +1,14 @@
+# Setup Initial configuraton of the ESXi hosts for VCF Workload Domain
+#
+# Setup ESXi hosts for VCF Workload Domain
+#
+# ESXi should have been installed and IP/VLAN/Password configured
+#
+# Add the DNS Name and Server info to the ESXi Hosts
+#  - include_tasks: add_esxi_dns.yml
+# Add the NTP Server(s) to the ESXi Hosts
+  - include_tasks: add_esxi_ntp.yml
+# Modify the vSwitch0 for ESXi Hosts to add WD_mgmt_VLAN to VM Network and set MTU to 9000
+  - include_tasks: modify_esxi_vswitch0.yml
+# Enable SSH service on the ESXi Hosts
+#  - include_tasks: enable_esxi_ssh.yml

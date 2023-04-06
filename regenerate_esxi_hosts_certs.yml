@@ -1,0 +1,27 @@
+---
+################################################################################
+# ESXi Host Regenerate Local Certificates
+################################################################################
+#
+# Make sure ESXi is completely installed and DNS information including hostname and domain is populated
+# Make sure SSH access is enabled. This playbook will SSH to the ESXi hosts and issue commands to:
+# - regenerate certs
+# - restart manangement
+#
+- hosts: esxi_hosts
+  gather_facts: no
+  serial: 1
+  tasks:
+    - name: Regenerate certs
+      shell: /sbin/generate-certificates
+    - name: Restart Management
+      shell: /etc/init.d/hostd restart && /etc/init.d/vpxa restart
+
+- hosts: workload_hosts
+  gather_facts: no
+  serial: 1
+  tasks:
+    - name: Regenerate certs
+      shell: /sbin/generate-certificates
+    - name: Restart Management
+      shell: /etc/init.d/hostd restart && /etc/init.d/vpxa restart

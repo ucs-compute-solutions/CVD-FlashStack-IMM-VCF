@@ -1,0 +1,93 @@
+# This file defines various default values used by VCF Mgmt Host server policies 
+# These values typically do not need to changes but can be modified depending on customer requirements
+
+# BIOS policy
+description_of_bios_policy          : "BIOS Policy for M6 Performance optimized ESXi Servers"
+
+# IMC Access Policy
+description_of_imc_access_policy    : "IMC Access Policy for KVM Access"
+
+# KVM Policy
+description_of_kvm_policy           : "KVM Policy to set Tunneled KVM to {{enable_tunneled_kvm}}"
+
+# vMedia Policy
+description_of_vmedia_policy        : "vMedia Policy to enable KVM mounted DVDs"
+
+# Boot Order Policy (if required)
+boot_order_policy_description : "VCF Mgmt Host Boot Order Policy"
+
+# FC Boot Order Policy (if required)
+fc_boot_order_policy_description    : "Fibre Channel Boot Order Policy - VIC-slot"
+
+# IPMI over LAN Policy 
+description_of_ipmi_policy          : "Enable IPMI over LAN"
+
+# Power Policy
+description_of_power_policy         : "Configure power setting to always be power-on"
+
+# Local User Policy to enable KVM Access 
+description_of_LocalUser_policy      : "Allow Local Users in this policy KVM Access to Servers"
+
+# Ethernet QoS Policy
+description_of_ethernet_qos_policy   : "Ethernet QoS Policy setting MTU to 9000 and priority to Best Effort"
+mtu                                  : 9000
+class_of_service                     : 0
+burst                                : 10240
+priority                             : "Best Effort"
+rate_limit                           : 0
+
+# Ethernet Network Control Policy
+description_of_ethernet_network_control_policy  : "Ethernet Network Control Policy to enable CDP and LLDP"
+
+# Default Ethernet Adapter Policy for VMware
+description_of_ethernet_adapter_vmware_policy  : "Ethernet Adapter Policy for VMware - Platform defaults"
+vmware_number_of_interrupts    : 4
+vmware_receive_queue_count     : 1
+vmware_receive_ring_size       : 512
+vmware_tansmit_queue_count     : 1
+vmware_transmit_ring_size      : 256
+vmware_completion_queue_count  : 2
+vmware_completion_ring_size    : 1
+
+# Ethernet Adapter Policy for High Traffic Interface (Applies to both VDSs)
+description_of_ethernet_adapter_policy  : "Ethernet Adapter Policy for High Traffic"
+number_of_interrupts    : 11
+receive_queue_count     : 8
+receive_ring_size       : 4096
+tansmit_queue_count     : 1
+transmit_ring_size      : 4096
+completion_queue_count  : 9
+completion_ring_size    : 1
+
+# Ethernet Network Group Policy - VLAN details of vNICs assigned to VDS01 for Management, vMotion and vSAN
+description_of_network_group_policy_for_vds01  : "VLAN details of VDS01 interfaces to allow Mgmt, vMotion and vSAN traffic"
+
+# Ethernet Network Group Policy - VLANs details of vNIC assigned to VDS02 for  vMotion and traffic VLANs
+description_of_network_group_policy_vds02      : "VLAN details of VDS interfaces to allow NSX host overlay traffic"
+
+# Adapter Policy
+description_of_adapter_policy: "VCF Mgmt Domain host adapter policy"
+
+# Boot Policies
+description_of_boot_policy                : "Local Disk Boot Policy for VCF Management Domain host"
+
+# LAN Connectivity Policies
+description_of_lan_connectivity_policy    : "LAN Connectivity Policy for VCF Management Domain hosts"
+
+# Fibre Channel Network Policy: SAN-A
+description_of_fc_network_policy_san_a  : "SAN-A Fibre Channel Network Policy using VSAN {{ vsan_id_SAN_A }}"
+
+# Fibre Channel Network Policy: SAN-B
+description_of_fc_network_policy_san_b  : "SAN-B Fibre Channel Network Policy using VSAN {{ vsan_id_SAN_B }}"
+
+# Fibre Channel QoS Policy
+description_of_fc_qos_policy  : "Fibre Channel QoS policy with default values"
+
+# Fibre Channel Adapter Policy
+description_of_fc_adapter_policy    : "Fibre Channel Adapter policy with VMware platform defined default values"
+
+# FC-NVMe Initiator Adapter Policy
+description_of_fc_nvme_initiator_adapter_policy    : "FC-NVMe Initiator Adapter policy with platform defined default values"
+
+# SAN connectivity Policy
+description_of_san_connectivity_policy  : "SAN Connectivity Policy to add FC HBAs"

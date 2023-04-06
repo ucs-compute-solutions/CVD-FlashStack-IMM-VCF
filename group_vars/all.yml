@@ -1,0 +1,232 @@
+# This file defines the variables which are common across the entire setup.
+# 
+# Enter Intersight API Key ID and the location of the SecretKey file
+# 
+api_key_id        : <API_KEY_ID>
+api_private_key   : <SECRET_KEY_FILE>
+# 
+# Prefix added to the pool/policy/profile configuration to eaisly identify items created by Ansible
+prefix        : VCF
+
+# Organization Name
+org_name      : "AA01"
+
+# NTP Server IPs
+ntp_servers:
+  - ip_address: "172.20.10.11"
+
+# DNS Server IPs
+dns_server_ip:
+  - 10.101.1.53
+  - 10.101.1.54
+
+# DNS Domain
+dns_domain: "vcf.local"
+
+###############################################################################
+#
+# Various Pools
+#
+###############################################################################
+
+# Chassis Configuration - UUID Pool
+name_of_uuid_pool: '{{ prefix }}-UUID-Pool'
+uuid_prefix: 'AA010000-0000-0000'
+uuid_size: 50
+uuid_from: 'AA01-00000000AA00'
+
+# IP Address Pool for Management Access (in-band access)
+#
+name_of_ip_pool_for_management_access       : "{{ prefix }}-Mgmt-IP-Pool"
+ip_pool_start_for_management_access         : 10.101.1.216
+size_of_ip_pool_for_management_access       : 5
+gateway_mgmt                                : 10.101.1.254
+netmask_mgmt                                : 255.255.255.0
+primary_dns_mgmt                            : 10.101.1.53
+secondary_dns_mgmt                          : 10.101.1.54
+
+# Seperate MAC Address Pools for Fabric-A and Fabric-B
+#For FI-A
+name_of_mac_pool_on_fi_a          : "{{ prefix }}-Mac-Pool-A"
+mac_pool_start_on_fi_a            : "00:25:B5:A1:AA:00"
+size_of_mac_pool_on_fi_a          : 256
+
+# For FI-B
+name_of_mac_pool_on_fi_b          : "{{ prefix}}-Mac-Pool-B"
+mac_pool_start_on_fi_b            : "00:25:B5:A1:BB:00"
+size_of_mac_pool_on_fi_b          : 256
+
+
+###############################################################################
+#
+# Server Policies
+#
+###############################################################################
+# BIOS policy
+name_of_bios_policy                 : "{{ prefix }}-BIOS-Policy"
+#
+# IMC Access Policy - Configures the KVM to be accessed In-Band
+# The in-band vlan must be enabled on the trunk between Nexus 9K and UCS FI
+name_of_imc_access_policy           : "{{ prefix }}-IMC-Access-Policy"
+vlan_for_cimc_access                : 1011
+
+# KVM Access Policy - Enables (true) or disables (false) Tunneled KVM Server Access
+# Ensure the Intersight Account allows Tunneled KVM> To enable Tunneled KVM for 
+# account,  go to Settings > Security and Privacy and enable Tunneled KVM settings
+name_of_kvm_policy                  : "{{ prefix }}-KVM-Policy"
+enable_tunneled_kvm                 : 'true'
+
+# Virtual Media Policy - enables mounting ISO files using KVM 
+name_of_vmedia_policy               : "{{ prefix }}-vMedia-Policy"
+
+# IPMI over LAN Policy 
+name_of_ipmi_policy                 : "{{ prefix }}-Enable-IPMIoLAN-Policy"
+
+# Power Policy
+name_of_power_policy                : "{{ prefix }}-Power-Policy"
+
+# Local User Policy to enable KVM Access 
+name_of_LocalUser_policy            : "{{ prefix }}-LocalUser-Policy"
+
+# Ethernet QoS Policy to set MTU 9000 and QoS Best Effort;
+# QoS values can be updated in roles/create_server_policies/defaults/main.yml
+name_of_ethernet_qos_policy         : "{{ prefix }}-EthernetQoS-Policy"
+
+# Ethernet Network Control Policy to enable CDP and LLDP
+name_of_ethernet_network_control_policy         : "{{ prefix }}-Enable-CDP-LLDP-Policy"
+
+# Default Ethernet Adapter Policy for VMware
+# Various values can be updated under roles/create_server_policies/defaults/main.yml
+name_of_ethernet_adapter_vmware_policy  : "{{ prefix }}-EthAdapter-VMware-Policy"
+
+# Ethernet High Traffic Adapter Policy
+# Various values can be updated under roles/create_server_policies/defaults/main.yml
+name_of_ethernet_adapter_policy  : "{{ prefix }}-EthAdapter-HighTraffic-Policy"
+
+
+# Ethernet Network Group Policy - VLAN details of vNICs assigned to 1st VDS for Management, vMotion and vSAN
+name_of_network_group_policy_for_vds01        : "{{ prefix }}-VDS01-NetGrp-Policy"
+native_vlan_for_vds01_vnic                     : 2
+allowed_vlans_for_vds01_vnic                   : "1010,1011,3001,3030"
+
+
+# Ethernet Network Group Policy - VLANs details of vNIC assigned to 2nd VDS for NSX traffic
+name_of_network_group_policy_for_vds02        : "{{ prefix }}-VDS02-NetGrp-Policy"
+native_vlan_for_vds02_vnic                      : 2
+allowed_vlans_for_vds02_vnic                    : "3002"
+
+# LAN Connectivity Policy
+# 4 interfaces for all hosts
+
+#00-VDS01-A: For Manaagement, vMotion, vSAN mapped to FI-A
+#01-VDS01-B: For Manaagement, vMotion, vSAN mapped to FI-B
+#02-VDS02-A: For NSX Host Overlay VLAN mapped to FI-A
+#03-VDS02-B: For NSX Host Overlay VLAN mapped to FI-B
+
+name_of_lan_connectivity_policy   : "{{ prefix }}-LAN-Conn-Policy"
+
+name_of_vcf_vnic_1                          : "00-VDS01-A"
+name_of_vcf_vnic_2                          : "01-VDS01-B"
+name_of_vcf_vnic_3                          : "02-VDS02-A"
+name_of_vcf_vnic_4                          : "03-VDS02-B"
+
+# Boot mode for server. Options include Uefi or Legacy but in this case it will be Uefi
+# UEFI secure boot true or flase
+boot_mode                   : "Uefi"
+enable_uefi_secureboot      : 'true'
+
+# Boot Order Policy for Local Storage Boot
+boot_order_policy_name         : "{{ prefix }}-BootOrder-Policy"
+
+#------------------------- Server Profile ----------------------------------
+
+name_of_SPT       : "{{ prefix }}-MgmtDomHost-Template"
+name_of_fc_SPT    : "{{ prefix }}-WkldDomHost-Template"
+
+# Server CPU Type - set to Intel or AMD
+server_cpu_type: "Intel"
+
+# VIC Type - set to 4G for 4th Gen VICs or 5G for 5th Gen VICs - Also add 4G or 5G to Server Profile Template Name
+#vic_type: "5G"
+
+#---------------------- ESXi Management VLAN -------------------------------
+#
+# This VLAN will be configured on the default VM portgroup on ESXi servers
+# Cloud Builder sets up Management vCenter in the default port group
+# The VLAN should correspond to management subnet specifically vCenter management IP
+
+WD_mgmt_VLAN: 1011
+
+#------------------------- FC Configurations ------------------------------
+
+# Boot LUN ID on Storage
+lun_id                      : 1
+
+# Fibre Channel Pools
+#
+# WWNN Pool
+name_of_wwnn_pool               : "{{ prefix }}-WWNN-Pool"
+wwnn_pool_start                 : "20:00:00:B4:AA:03:00:00"
+wwnn_pool_size                  : 256
+#
+# WWPN Pool
+#
+#For FI-A
+name_of_wwpn_pool_san_a         : "{{ prefix }}-WWPN-Pool-A"
+wwpn_pool_start_on_san_a        : "20:00:00:B4:AA:03:0A:00"
+wwpn_pool_size_on_san_a         : 256
+#
+#For FI-B
+name_of_wwpn_pool_san_b         : "{{ prefix }}-WWPN-Pool-B"
+wwpn_pool_start_on_san_b        : "20:00:00:B4:AA:03:0B:00"
+wwpn_pool_size_on_san_b         : 256
+
+# Boot Order Policy for Fibre Channel Boot
+fc_boot_order_policy_name         : "{{ prefix }}-FC-Boot-Order-Policy"
+
+# Fibre Channel Network Policy: SAN-A
+name_of_fc_network_policy_san_a         : "{{ prefix}}-FC-Network-SAN-A"
+fcoe_vlan_id_SAN_A                      : 103
+vsan_id_SAN_A                           : 103
+
+# Fibre Channel Network Policy: SAN-B
+name_of_fc_network_policy_san_b         : "{{ prefix}}-FC-Network-SAN-B"
+fcoe_vlan_id_SAN_B                      : 104
+vsan_id_SAN_B                           : 104
+
+# Provide logical names to identify during boot
+san_boot_device_1a_name      : "FCP-X50R3-CT0-FC0"
+san_boot_device_2a_name      : "FCP-X50R3-CT1-FC0"
+san_boot_device_1b_name      : "FCP-X50R3-CT0-FC1"
+san_boot_device_2b_name      : "FCP-X50R3-CT1-FC1"
+
+# Provide Target WWPN Names
+san_boot_target_1a_wwpn      : "52:4a:93:7f:8b:d2:75:00"
+san_boot_target_2a_wwpn      : "52:4a:93:7f:8b:d2:75:10"
+san_boot_target_1b_wwpn      : "52:4a:93:7f:8b:d2:75:01"
+san_boot_target_2b_wwpn      : "52:4a:93:7f:8b:d2:75:11"
+
+# Fibre Channel QoS Policy
+name_of_fc_qos_policy         : "{{ prefix }}-FC-QoS-Policy"
+
+# Fibre Channel Adapter Policy
+name_of_fc_adapter_policy           : "{{ prefix }}-FC-Adapter-Policy"
+
+# FC-NVMe Initiator Adapter Policy
+name_of_fc_nvme_initiator_adapter_policy           : "{{ prefix }}-FC-NVMe-Initiator-Adapter-Policy"
+
+# SAN connectivity Policy
+name_of_san_connectivity_policy         : "{{ prefix }}-SAN-Connectivity-Policy"
+name_of_vhba_a                          : "FCP-Fabric-A"
+name_of_vhba_b                          : "FCP-Fabric-B"
+
+# Optional FC-NVMe Adapter Configuration
+name_of_nvme_vhba_a                     : "FC-NVMe-Fabric-A"
+name_of_nvme_vhba_b                     : "FC-NVMe-Fabric-B"
+
+# Storage FC WWPNs (capture from storage system)
+#
+fcp_ct0_fc0: '52:4a:93:7f:8b:d2:75:00'
+fcp_ct1_fc0: '52:4a:93:7f:8b:d2:75:10'
+fcp_ct0_fc2: '52:4a:93:7f:8b:d2:75:01'
+fcp_ct1_fc2: '52:4a:93:7f:8b:d2:75:11'

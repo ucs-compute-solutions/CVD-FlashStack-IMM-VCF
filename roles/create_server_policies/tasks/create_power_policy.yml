@@ -1,0 +1,35 @@
+---
+#
+# Congifure power policy for always power-on
+#
+- name: "Configure Power Policy"
+  vars:
+    api_info: &api_info
+      api_private_key: "{{ api_private_key }}"
+      api_key_id: "{{ api_key_id }}"
+      api_uri: "{{ api_uri | default(omit) }}"
+      validate_certs: "{{ validate_certs | default(omit) }}"
+      state: "{{ state | default(omit) }}"
+
+  cisco.intersight.intersight_rest_api:
+    <<: *api_info
+    resource_path: /power/Policies
+    query_params:
+       $filter: "Name eq '{{ name_of_power_policy }}'"
+    api_body: {
+        "Name": "{{ name_of_power_policy }}",
+        "Description": "{{ description_of_power_policy }}",
+        "AllocatedBudget": 0,
+        "DynamicRebalancing": "Enabled",
+        "ExtendedPowerCapacity": "Enabled",
+        "PowerPriority": "Low",
+        "PowerProfiling": "Enabled",
+        "PowerRestoreState": "AlwaysOn",
+        "PowerSaveMode": "Enabled",
+        "RedundancyMode": "Grid",
+        "Organization": {
+           "Moid": "{{ intersight_org.api_response.Moid }}"
+         },
+        Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}]
+     }
+  register: power_policy

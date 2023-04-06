@@ -1,0 +1,47 @@
+# Currently, this file does not need any server entries to be populated.
+# You can execute update_all_inventory.yml playbook to update your server information in this file.
+# However, this server information will be used in future to deploy Server Profiles.
+# In the current release, the playbooks are used to create server profile template from which
+# server profiles are derived manually by the end user
+#
+[Intersight_Servers]
+# Note: at least one host (e.g., sjc07-r13-501) must be present for update_*_inventory.yml to work
+AA01-6454-5
+
+[Intersight:children]
+Intersight_Servers
+
+[esxi_hosts]
+# VCF Management Hosts
+vcf-esxi-01.vcf.local
+vcf-esxi-02.vcf.local
+vcf-esxi-03.vcf.local
+vcf-esxi-04.vcf.local
+
+[workload_hosts]
+# VCF Workload Domain Hosts
+aa01-esxi-01.vcf.local
+aa01-esxi-02.vcf.local
+aa01-esxi-03.vcf.local
+
+[esxi_hosts:vars]
+username=root 
+password=<PASSWORD>
+#
+# The ansible_ssh_user and password is only needed when re-generating
+# certificates using regenerate_esxi_hosts_cert.yml. If certificates
+# are 
+#
+ansible_ssh_user=root 
+ansible_ssh_pass=<PASSWORD>
+
+[workload_hosts:vars]
+username=root
+password=<PASSWORD>
+#
+# The ansible_ssh_user and password is only needed when re-generating
+# certificates using regenerate_esxi_hosts_cert.yml. If certificates
+# are
+#
+ansible_ssh_user=root
+ansible_ssh_pass=<PASSWORD>

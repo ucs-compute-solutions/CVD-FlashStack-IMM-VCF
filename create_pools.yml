@@ -1,0 +1,15 @@
+---
+# Create various pools. The pools being created are:
+# - IP Pools for Mgmt
+# - UUID pools
+# - MAC address Pools
+# 
+# These pools will be mapped to the Server Profile Template
+#
+- name: "Create Various Pools"
+  hosts: localhost
+  gather_facts: no
+
+  # Create Various Pool
+  roles:
+    - role: create_pools

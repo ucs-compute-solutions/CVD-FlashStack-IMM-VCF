@@ -1,0 +1,18 @@
+---
+#
+# Set hostname from inventory file
+# Set domain name
+# Set DNS server IP address
+#
+  - name: Configure ESXi hostname and DNS servers
+    vmware_host_dns:
+      hostname: '{{ inventory_hostname }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      validate_certs: no
+      host_name: '{{ dns_name }}'
+      domain: '{{ dns_domain }}'
+      type: static
+      dns_servers: '{{ dns_server_ip }}'
+    delegate_to: localhost
+

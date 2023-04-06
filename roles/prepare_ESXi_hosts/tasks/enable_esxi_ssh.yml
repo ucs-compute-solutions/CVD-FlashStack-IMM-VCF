@@ -1,0 +1,15 @@
+---
+#
+# Enable SSH on ESXi
+# SSH allows us to connect to ESXi server and re-generate certs 
+#
+  - name: Enable ESXi SSH servive
+    vmware_host_service_manager:
+      hostname: '{{ inventory_hostname }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      validate_certs: no
+      esxi_hostname: '{{ inventory_hostname }}'
+      service_name: TSM-SSH
+      state: present
+    delegate_to: localhost

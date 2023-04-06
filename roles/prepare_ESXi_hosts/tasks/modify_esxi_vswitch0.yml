@@ -1,0 +1,31 @@
+---
+#
+# Set Jumbo MTU on vSwitch
+# Set default port-group VLAN to in-band management VLAN
+# vCenter is deployes in the VLAN we set here
+#
+  - name: Update MTU to 9000 on vSwitch0
+    vmware_vswitch:
+      hostname: '{{ inventory_hostname }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      validate_certs: no
+      switch: "vSwitch0"
+      nics:
+      - vmnic0
+      mtu: 9000
+    delegate_to: localhost
+
+
+  - name: Add Mgmt VLAN to default port group
+    vmware_portgroup:
+      hostname: '{{ inventory_hostname }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      validate_certs: no
+      esxi_hostname: '{{ inventory_hostname }}'
+      switch: "vSwitch0"
+      portgroup: "VM Network"
+      vlan_id: "{{ WD_mgmt_VLAN }}"
+      state: present
+    delegate_to: localhost

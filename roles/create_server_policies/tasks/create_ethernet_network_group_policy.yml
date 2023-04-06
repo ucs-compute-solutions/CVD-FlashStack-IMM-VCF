@@ -1,0 +1,67 @@
+---
+#
+# Create two network group policies as follows:
+# 1. VDS01 carries all the management, vMotion and vSAN VLANs
+# 2. VDS02 carries NSX host-overlay VLAN
+# The VLAN assigment is defined in ../defaults/main.yml
+# VMware defines this as Profile-3 in cloud builder input excel sheet  
+#
+- name: "Configure Ethernet Network Group Policy for Mgmt, vSAN and vMotion VDS01"
+  vars:
+    api_info: &api_info_vds01
+      api_private_key: "{{ api_private_key }}"
+      api_key_id: "{{ api_key_id }}"
+      api_uri: "{{ api_uri | default(omit) }}"
+      validate_certs: "{{ validate_certs | default(omit) }}"
+      state: "{{ state | default(omit) }}"
+
+  cisco.intersight.intersight_rest_api:
+    <<: *api_info_vds01
+    resource_path: /fabric/EthNetworkGroupPolicies
+    query_params:
+       $filter: "Name eq '{{ name_of_network_group_policy_for_vds01 }}'"
+    api_body: {
+      "Name": "{{ name_of_network_group_policy_for_vds01 }}",
+      "Description": "{{ description_of_network_group_policy_for_vds01 }}",
+
+      "Organization": {
+         "Moid": "{{ intersight_org.api_response.Moid }}"
+       },
+      Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}],
+      "VlanSettings": {
+         "NativeVlan": "{{ native_vlan_for_vds01_vnic }}",
+         "AllowedVlans": "{{ allowed_vlans_for_vds01_vnic | string }}"
+         }
+      }
+  register: vds01_network_group_policy
+
+
+- name: "Configure Ethernet Network Group Policy for NSX VDS02"
+  vars:
+    api_info: &api_info_vds02
+      api_private_key: "{{ api_private_key }}"
+      api_key_id: "{{ api_key_id }}"
+      api_uri: "{{ api_uri | default(omit) }}"
+      validate_certs: "{{ validate_certs | default(omit) }}"
+      state: "{{ state | default(omit) }}"
+
+  cisco.intersight.intersight_rest_api:
+    <<: *api_info_vds02
+    resource_path: /fabric/EthNetworkGroupPolicies
+    query_params:
+       $filter: "Name eq '{{ name_of_network_group_policy_for_vds02 }}'"
+    api_body: {
+      "Name": "{{ name_of_network_group_policy_for_vds02 }}",
+      "Description": "{{ description_of_network_group_policy_vds02 }}",
+
+      "Organization": {
+         "Moid": "{{ intersight_org.api_response.Moid }}"
+       },
+      Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}],
+      "VlanSettings": {
+         "NativeVlan": "{{ native_vlan_for_vds02_vnic }}",
+         "AllowedVlans": "{{ allowed_vlans_for_vds02_vnic | string }}"
+         }
+      }
+  register: vds02_network_group_policy
+
