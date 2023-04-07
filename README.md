@@ -1,23 +1,22 @@
 [![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/ucs-compute-solutions/IMM-VCF-MgmtDomain)
-# VMware Cloud Foundation management domain host setup for Intersight Managed (IMM) Cisco UCS rack servers
-This repository contains Ansible playbooks for configuring Cisco Intersight managed C-Series (tested Cisco UCS C240 M5) servers. This repository aligns with the following design guide: https://www.cisco.com/c/en/us/td/docs/unified_computing/ucs/UCS_CVDs/flexpod_vcf_design.html. This repository can be used to setup various pools, policies, Server Profile Template, and to perform initial configuration of the ESXi hosts for deploying VCF using Cloud Builder. To run these playbooks, Cisco UCS C-Series servers should be connected via Cisco UCS Fabric Interconnects and managed using IMM as shown in the figure.
+# VMware Cloud Foundation (VCF) setup for Intersight Managed (IMM) Cisco UCS X-series blades as part of a Cisco FlashStack and rackmount servers
+This repository contains Ansible playbooks for configuring Cisco Intersight managed X-Series servers, when used as part of a Cisco FlashStack, to operate as a VMware Cloud Foundation Workload Domain. In addition, these playbooks can configure a set of vSAN-ready Cisco Intersight managed C-series servers to operate as the VCF management domain. This repository can be used to setup various pools, policies, Server Profile Template, and to perform initial configuration of the ESXi hosts for deploying VCF using Cloud Builder. To run these playbooks, Cisco UCS C-Series servers should be connected via Cisco UCS Fabric Interconnects and managed using IMM as shown in the figure, and the Cisco UCS X-series blades should be configured and available as part of a Cisco FlashStack installation.
 <img width="848" alt="IMM-Overview" src="https://user-images.githubusercontent.com/89957595/206804516-95da06c8-2be1-4739-b067-7392359896e6.png">
 
 # Cisco Intersight Managed Mode (IMM) and ESXi Configuration
 The playbooks in this repository perform following high level functions:
 ## Cisco UCS
-- Create various pools required to setup a Server Profile Template
-- Create various policies required to setup a Server Profile Template
-- Create VCF Mangement Host Server Profile Templates
-After successfully executing UCS playbooks, you can use the server profile template to derive 4 server profiles and install ESXi software on local disk.
+- Create various pools required to setup the Server Profile Templates
+- Create various policies required to setup the Server Profile Templates
+- Create VCF Mangement domain Server Profile Templates, which boot from local disk and run vSAN
+- Create VCF Workload domain Server Profile Templates, which boot from SAN via the Pure Storage FlashArray, and use FC based VMFS datastores
+After successfully executing UCS playbooks, you can use the server profile template to derive 4 server profiles for the management hosts, and 3 or more server profiles for the workload domain hosts, then install ESXi software on all of the servers. Afterwards, configure the management interfaces and hostnames of the ESXi hosts via the virtual KVM feature in Cisco Intersight.
 
 __NOTE:__ The addition of UCS to Intersight Account or configuration of Domain Profile to setup UCS is not part of this repository and will have to be performed manually before executing the playbooks.
 
 __NOTE:__ The playbooks do not create an organization and assume an organization (default or otherwise) has already been setup under Intersight account. The organization name must be updated in group_vars/all.yml(org_name) for successful execuation of the playbooks.
 ## ESXi Config
 - Setup NTP server
-- Setup hostname, domain and DNS server
-- Enable SSH on the hosts
 - Set vSwitch0 MTU to 9000
 - Set default port-group VLAN (management)
 After running the ESXi playbooks, log into each ESXi host using SSH and re-generate self signed certificates using the following commands:
@@ -49,15 +48,17 @@ To execute the playbooks, you will need to follow these steps:
 2. Add Cisco UCS to Intersight account and create a domain profile so the servers get discovered and ports and port-channels are configured
 3. Setup a Linux (or similar) host and install Ansible, git and required UCS and VMware packages
 4. Clone the repository using git
-5. Update the inventory file to provide the access information for ESXi host information. Add the Intersight API key to all.yml and copy the SecretKey.txt to appropriate folder and update the location in all.yml
-6. Update variables in group_vars/all.yml to match your environment
-7. Execute the create_pools.yml playbook to setup various pools `ansible-playbook ./create_pools.yml -i inventory`
-8. Execute the create_server_policies.yml playbook to setup various policies `ansible-playbook ./create_server_policies.yml -i inventory`
-9. Execute the create_server_profile_template.yml playbook to setup server profile template for VCF management host `ansible-playbook ./create_server_profile_template.yml -i inventory`
-10. Manually derive 4 Server Profiles to deploy 4 VCF Mgmt Host servers
-11. Install ESXi on the 4 servers and configure the management interface to be able to access ESXi hosts
-12. Execute the prepare_esxi_host.yml playbook to prep the ESXi hosts `ansible-playbook ./prepare_esxi_hosts.yml -i inventory`
-13. Regenerate the self signed certificates on all 4 ESXi hosts manually or use the playbook: `ansible-playbook ./regenerate_esxi_hosts_certs.yml -i inventory`
-14. Update enic or fnic drivers if applicable (please consult the associated CVD)
+5. Update the inventory file to provide the access information for ESXi host information. 
+6. Add the Intersight API key to group_vars/all.yml and copy the SecretKey.txt to appropriate folder and update the location in group_vars/all.yml
+7. Update variables in group_vars/all.yml to match your environment
+8. Execute the update_all_inventory.yml playbook to populate the Intersight server inventory, and verify proper access and connectivity `ansible-playbook update_all_inventory.yml -i inventory`
+9. Execute the create_pools.yml playbook to setup various pools `ansible-playbook create_pools.yml -i inventory`
+10. Execute the create_server_policies.yml playbook to setup various policies `ansible-playbook create_server_policies.yml -i inventory`
+11. Execute the create_server_profile_template.yml playbook to setup server profile templates for VCF management and workload hosts `ansible-playbook create_server_profile_template.yml -i inventory`
+12. Manually derive 4 Server Profiles to deploy 4 VCF Mgmt Host servers and the 3 or more FC boot Server Profiles for the VCF Workload Domain hosts.
+13. Create a bootable ESXi ISO image for ESXi 7.0 U3g, including the compatible Cisco nenic and nfnic drivers (instructions are in the associated CVD document)
+14. Install ESXi on all the servers and configure the management interface to be able to access ESXi hosts
+15. Execute the prepare_esxi_host.yml playbook to prep the ESXi hosts `ansible-playbook prepare_esxi_hosts.yml -i inventory`
+16. Regenerate the self signed certificates on all the ESXi hosts manually or use the playbook: `ansible-playbook regenerate_esxi_hosts_certs.yml -i inventory`
 
-At this time, ESXi servers will be ready for VCF cloud builder to setup the management domain. 
+At this time, ESXi servers will be ready for VCF cloud builder to setup the management domain. Afterwards, VMware SDDC can be used to commission the workload domain hosts and create the workload domain. 
